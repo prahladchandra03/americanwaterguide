@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0f14; /* Dark Theme Background match kiya hai */
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +12,49 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* Google Translate Frame ko body shift karne se rokna */
+  top: 0px !important; 
+  position: static !important;
+}
+
+/* --- HIDE GOOGLE TRANSLATE BANNER & LOGO --- */
+
+/* 1. Top Banner Hide Karna */
+.goog-te-banner-frame.skiptranslate {
+    display: none !important;
+}
+
+/* 2. Google Logo Icon Hide Karna */
+.goog-te-gadget-icon {
+    display: none !important;
+}
+
+/* 3. Original Widget Text Hide Karna */
+.goog-te-gadget-simple {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* 4. Hover karne par jo Tooltip aata hai usse hatana */
+.goog-tooltip {
+    display: none !important;
+}
+.goog-tooltip:hover {
+    display: none !important;
+}
+.goog-text-highlight {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* 5. Mobile responsive tweaks */
+iframe.goog-te-banner-frame {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
 }
