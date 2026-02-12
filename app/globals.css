@@ -1,24 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0f14; /* Dark Theme Background match kiya hai */
+  --background: #0a0f14;
   --foreground: #ededed;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  /* Google Translate Frame ko body shift karne se rokna */
-  top: 0px !important; 
-  position: static !important;
+/* Base resets */
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    top: 0px !important; 
+    position: static !important;
+  }
+}
+
+/* --- GOOGLE TRANSLATE FIXES --- */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-gadget-icon,
+.goog-tooltip,
+iframe.goog-te-banner-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.goog-te-gadget-simple {
+  background-color: transparent !important;
+  border: none !important;
 }
 
 /* --- HIDE GOOGLE TRANSLATE BANNER & LOGO --- */
