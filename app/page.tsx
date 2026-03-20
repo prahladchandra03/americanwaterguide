@@ -32,34 +32,40 @@ const staggerContainer = {
   visible: { transition: { staggerChildren: 0.12 } }
 };
 
-// --- FLOATING PARTICLES ---
+// --- FLOATING PARTICLES (client-only to avoid hydration mismatch) ---
 function FloatingParticles() {
+  const [particles, setParticles] = useState<Array<{
+    w: number; h: number; l: string; t: string; bg: string; xOff: number; dur: number; del: number;
+  }>>([]);
+
+  useEffect(() => {
+    setParticles(
+      [...Array(20)].map((_, i) => ({
+        w: Math.random() * 4 + 1,
+        h: Math.random() * 4 + 1,
+        l: `${Math.random() * 100}%`,
+        t: `${Math.random() * 100}%`,
+        bg: i % 2 === 0
+          ? `rgba(59, 130, 246, ${Math.random() * 0.3 + 0.1})`
+          : `rgba(139, 92, 246, ${Math.random() * 0.3 + 0.1})`,
+        xOff: Math.random() * 60 - 30,
+        dur: Math.random() * 8 + 6,
+        del: Math.random() * 5,
+      }))
+    );
+  }, []);
+
+  if (particles.length === 0) return null;
+
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {[...Array(20)].map((_, i) => (
+      {particles.map((p, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full"
-          style={{
-            width: Math.random() * 4 + 1,
-            height: Math.random() * 4 + 1,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            background: i % 2 === 0 
-              ? `rgba(59, 130, 246, ${Math.random() * 0.3 + 0.1})` 
-              : `rgba(139, 92, 246, ${Math.random() * 0.3 + 0.1})`,
-          }}
-          animate={{
-            y: [0, -150, 0],
-            x: [0, Math.random() * 60 - 30, 0],
-            opacity: [0, 1, 0],
-          }}
-          transition={{
-            duration: Math.random() * 8 + 6,
-            repeat: Infinity,
-            delay: Math.random() * 5,
-            ease: "easeInOut",
-          }}
+          style={{ width: p.w, height: p.h, left: p.l, top: p.t, background: p.bg }}
+          animate={{ y: [0, -150, 0], x: [0, p.xOff, 0], opacity: [0, 1, 0] }}
+          transition={{ duration: p.dur, repeat: Infinity, delay: p.del, ease: "easeInOut" as const }}
         />
       ))}
     </div>
