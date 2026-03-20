@@ -2,40 +2,297 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
-import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
 import Script from 'next/script';
 
 // --- CONFIGURATION ---
-const AFFILIATE_LINK = "https://uswaterrevolution.com/#aff=prahladchandra1151d9"; 
+const WATER_AFFILIATE_LINK = "https://uswaterrevolution.com/#aff=prahladchandra1151d9";
+const QUANTUM_AFFILIATE_LINK = "https://www.checkout-ds24.com/redir/611936/prahladchandra1151d9/";
 
 // --- ANIMATION VARIANTS ---
 const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" as const } }
+};
+const fadeInLeft = {
+  hidden: { opacity: 0, x: -40 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" as const } }
+};
+const fadeInRight = {
+  hidden: { opacity: 0, x: 40 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" as const } }
+};
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" as const } }
+};
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12 } }
 };
 
-// --- SVG LOGO COMPONENT ---
-const BrandLogo = () => (
-  <div className="flex flex-col items-center justify-center">
-    <div className="relative w-16 h-16 mb-2">
-      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]">
-        <path d="M12 2L3 7V12C3 17.52 7.02 22.12 12 24C16.98 22.12 21 17.52 21 12V7L12 2Z" fill="#1e293b" stroke="#EAB308" strokeWidth="2"/>
-        <path d="M12 6C12 6 7 11 7 14C7 16.76 9.24 19 12 19C14.76 19 17 16.76 17 14C17 11 12 6 12 6ZM12 17C10.34 17 9 15.66 9 14C9 12.5 11 9.5 12 8.5C13 9.5 15 12.5 15 14C15 15.66 13.66 17 12 17Z" fill="#3B82F6"/>
-      </svg>
+// --- FLOATING PARTICLES ---
+function FloatingParticles() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            width: Math.random() * 4 + 1,
+            height: Math.random() * 4 + 1,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            background: i % 2 === 0 
+              ? `rgba(59, 130, 246, ${Math.random() * 0.3 + 0.1})` 
+              : `rgba(139, 92, 246, ${Math.random() * 0.3 + 0.1})`,
+          }}
+          animate={{
+            y: [0, -150, 0],
+            x: [0, Math.random() * 60 - 30, 0],
+            opacity: [0, 1, 0],
+          }}
+          transition={{
+            duration: Math.random() * 8 + 6,
+            repeat: Infinity,
+            delay: Math.random() * 5,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
     </div>
-    <h2 className="text-2xl font-serif font-bold text-white tracking-widest uppercase border-b-2 border-yellow-500 pb-1">
-      Joseph's Well
-    </h2>
-    <p className="text-[10px] text-gray-400 tracking-[0.2em] mt-1 uppercase">Survival Water Systems</p>
-  </div>
-);
+  );
+}
 
+// --- NAVBAR ---
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const navLinks = [
+    { label: 'Home', href: '#hero' },
+    { label: 'Water System', href: '#water' },
+    { label: 'Quantum Course', href: '#quantum' },
+    { label: 'Reviews', href: '#reviews' },
+    { label: 'FAQ', href: '#faq' },
+  ];
+
+  return (
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled ? 'glass-strong shadow-2xl shadow-black/30' : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
+        {/* Logo */}
+        <Link href="#hero" className="flex items-center gap-3 group">
+          <div className="relative w-10 h-10">
+            <svg viewBox="0 0 24 24" fill="none" className="w-full h-full drop-shadow-[0_0_10px_rgba(234,179,8,0.4)]">
+              <path d="M12 2L3 7V12C3 17.52 7.02 22.12 12 24C16.98 22.12 21 17.52 21 12V7L12 2Z" fill="#1e293b" stroke="#EAB308" strokeWidth="1.5"/>
+              <path d="M12 6C12 6 7 11 7 14C7 16.76 9.24 19 12 19C14.76 19 17 16.76 17 14C17 11 12 6 12 6Z" fill="#3B82F6"/>
+            </svg>
+          </div>
+          <div>
+            <span className="text-lg font-bold text-white tracking-wide group-hover:text-yellow-400 transition-colors">American Water</span>
+            <span className="block text-[9px] uppercase tracking-[0.25em] text-gray-500">Independence Guide</span>
+          </div>
+        </Link>
+
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="px-4 py-2 text-sm text-gray-300 hover:text-white rounded-lg hover:bg-white/5 transition-all duration-300"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <Link
+            href={QUANTUM_AFFILIATE_LINK}
+            target="_blank"
+            className="ml-3 px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-violet-600 to-cyan-600 rounded-lg hover:shadow-lg hover:shadow-violet-500/25 transition-all duration-300 btn-premium"
+          >
+            Enroll Now
+          </Link>
+        </div>
+
+        {/* Mobile Toggle */}
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white p-2">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {mobileOpen
+              ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden glass-strong overflow-hidden"
+          >
+            <div className="px-4 py-4 space-y-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <Link
+                href={QUANTUM_AFFILIATE_LINK}
+                target="_blank"
+                className="block text-center px-5 py-3 font-bold text-white bg-gradient-to-r from-violet-600 to-cyan-600 rounded-lg mt-2"
+              >
+                Enroll Now
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
+  );
+}
+
+// --- ANIMATED COUNTER ---
+function AnimatedCounter({ end, suffix = '', prefix = '' }: { end: number; suffix?: string; prefix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setInView(true); },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const duration = 2000;
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      setCount(Math.floor(progress * end));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [inView, end]);
+
+  return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>;
+}
+
+// --- TESTIMONIAL CARD ---
+function TestimonialCard({ name, role, text, initials }: { name: string; role: string; text: string; initials: string }) {
+  return (
+    <motion.div variants={fadeInUp} className="glass rounded-2xl p-6 hover:border-violet-500/30 transition-all duration-500 group">
+      <div className="flex gap-1 mb-4">
+        {[...Array(5)].map((_, i) => (
+          <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+        ))}
+      </div>
+      <p className="text-gray-300 text-sm leading-relaxed mb-5 italic">&quot;{text}&quot;</p>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-cyan-600 flex items-center justify-center text-white font-bold text-sm">
+          {initials}
+        </div>
+        <div>
+          <p className="text-white font-semibold text-sm">{name}</p>
+          <p className="text-gray-500 text-xs">{role}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// --- FAQ ITEM ---
+function FaqItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <motion.div variants={fadeInUp} className="glass rounded-xl overflow-hidden group">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full text-left p-5 flex justify-between items-center hover:bg-white/5 transition-all"
+      >
+        <span className="text-white font-medium text-sm md:text-base pr-4">{question}</span>
+        <motion.span
+          animate={{ rotate: open ? 45 : 0 }}
+          className="text-violet-400 text-xl flex-shrink-0 font-light"
+        >
+          +
+        </motion.span>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <p className="px-5 pb-5 text-gray-400 text-sm leading-relaxed border-t border-white/5 pt-4">
+              {answer}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// --- LANGUAGE SELECTOR ---
+function LanguageSelector() {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const googleSelect = document.querySelector(".goog-te-combo") as HTMLSelectElement | null;
+    if (googleSelect) {
+      googleSelect.value = e.target.value;
+      googleSelect.dispatchEvent(new Event("change"));
+    }
+  };
+
+  return (
+    <select
+      onChange={handleChange}
+      className="appearance-none bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-1.5 pl-3 pr-7 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-violet-500 cursor-pointer transition-all"
+    >
+      <option value="en">🇺🇸 EN</option>
+      <option value="es">🇪🇸 ES</option>
+    </select>
+  );
+}
+
+
+// ==================== MAIN PAGE ====================
 export default function Home() {
   const [timeLeft, setTimeLeft] = useState(15 * 60);
   const [email, setEmail] = useState('');
 
-  // Timer Logic
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
@@ -46,321 +303,501 @@ export default function Home() {
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // --- EMAIL SUBMIT LOGIC ---
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      // Yahan tum baad me API call kar sakte ho email save karne ke liye
       console.log("Email captured:", email);
-      
-      // User ko Affiliate Offer par bhejo
-      window.location.href = AFFILIATE_LINK;
-    }
-  };
-
-  // --- LANGUAGE CHANGE LOGIC ---
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const languageCode = e.target.value;
-    const googleSelect = document.querySelector(".goog-te-combo") as HTMLSelectElement | null;
-    if (googleSelect) {
-      googleSelect.value = languageCode;
-      googleSelect.dispatchEvent(new Event("change"));
+      window.location.href = WATER_AFFILIATE_LINK;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f14] text-gray-200 font-sans selection:bg-red-900 selection:text-white overflow-x-hidden relative">
-      
-      {/* --- GOOGLE TRANSLATE SCRIPT --- */}
-      <Script 
-        src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" 
-        strategy="lazyOnload" 
-      />
-      <Script id="google-translate-init" strategy="lazyOnload">
-        {`
-          function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-              pageLanguage: 'en', 
-              includedLanguages: 'en,es',
-              autoDisplay: false
-            }, 'google_translate_element');
-          }
-        `}
-      </Script>
+    <div className="min-h-screen bg-[#050a10] text-gray-200 font-sans overflow-x-hidden relative">
+      <FloatingParticles />
 
+      {/* Google Translate */}
+      <Script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" strategy="lazyOnload" />
+      <Script id="google-translate-init" strategy="lazyOnload">{`
+        function googleTranslateElementInit() {
+          new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'en,es', autoDisplay: false }, 'google_translate_element');
+        }
+      `}</Script>
       <div id="google_translate_element" className="absolute opacity-0 w-0 h-0 overflow-hidden pointer-events-none"></div>
 
-      {/* --- TOP TICKER --- */}
-      <div className="bg-red-700 text-white text-xs md:text-sm font-bold py-2 overflow-hidden whitespace-nowrap sticky top-0 z-50 shadow-lg flex justify-between items-center pr-2">
-        <div className="flex-1 overflow-hidden">
-            <motion.div 
-            animate={{ x: ["100%", "-100%"] }} 
-            transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-            className="inline-block whitespace-nowrap"
-            >
-            ⚠️ BREAKING: NASA CONFIRMS "MEGADROUGHT" • WATER RATIONING EXPECTED IN 2026 • 40,000+ PATRIOTS PREPARING NOW •
+      <Navbar />
+
+      {/* ===== HERO SECTION ===== */}
+      <section id="hero" className="relative min-h-screen flex items-center justify-center pt-20 pb-16 overflow-hidden noise-overlay">
+        {/* Background Gradient Orbs */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
+          <motion.div initial="hidden" animate="visible" variants={staggerContainer}>
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-8">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              <span className="text-xs md:text-sm text-gray-300 font-medium">Exclusive Offers • Limited Time Only</span>
             </motion.div>
+
+            <motion.h1 variants={fadeInUp} className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6">
+              <span className="text-white">Secure Your </span>
+              <span className="text-gradient-blue">Future</span>
+              <br />
+              <span className="text-white">With </span>
+              <span className="text-gradient-violet">Knowledge & Independence</span>
+            </motion.h1>
+
+            <motion.p variants={fadeInUp} className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+              From generating water out of thin air to mastering quantum computing &amp; the new financial system — 
+              arm yourself with the tools that define tomorrow.
+            </motion.p>
+
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="#water">
+                <motion.button
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold text-lg rounded-xl shadow-lg shadow-blue-600/25 btn-premium tracking-wide"
+                >
+                  💧 Water Independence
+                </motion.button>
+              </Link>
+              <Link href="#quantum">
+                <motion.button
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-8 py-4 bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-bold text-lg rounded-xl shadow-lg shadow-violet-600/25 btn-premium tracking-wide"
+                >
+                  🧠 Quantum Finance Course
+                </motion.button>
+              </Link>
+            </motion.div>
+          </motion.div>
+
+          {/* Stats Bar */}
+          <motion.div
+            initial="hidden" whileInView="visible" viewport={{ once: true }}
+            variants={staggerContainer}
+            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4"
+          >
+            {[
+              { value: 40000, suffix: '+', label: 'Patriots Prepared' },
+              { value: 40, suffix: ' Gal', label: 'Daily Water Output' },
+              { value: 60, suffix: ' Day', label: 'Money-Back Guarantee' },
+              { value: 98, suffix: '%', label: 'Satisfaction Rate' },
+            ].map((stat, i) => (
+              <motion.div key={i} variants={fadeInUp} className="glass rounded-xl p-4 text-center">
+                <div className="text-2xl md:text-3xl font-extrabold text-white">
+                  <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
-      </div>
+      </section>
 
-      {/* --- CUSTOM LANGUAGE DROPDOWN --- */}
-      <div className="absolute top-12 right-4 z-40">
-         <div className="relative">
-            <select 
-              onChange={handleLanguageChange}
-              className="appearance-none bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 rounded-md py-2 pl-3 pr-8 text-sm font-bold shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer transition-colors"
-            >
-              <option value="en">🇺🇸 English</option>
-              <option value="es">🇪🇸 Español</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-            </div>
-         </div>
-      </div>
+      {/* ===== PRODUCT 1: JOSEPH'S WELL / WATER SYSTEM ===== */}
+      <section id="water" className="relative py-20 md:py-28">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
+        <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-blue-600/8 rounded-full blur-[100px] pointer-events-none"></div>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 md:py-12 relative z-10 mt-6">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Section Header */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="text-center mb-14">
+            <motion.span variants={fadeInUp} className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-blue-400 mb-4">Product #1</motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-extrabold text-white mb-5">
+              Joseph&apos;s Well — <span className="text-gradient-blue">Air Fountain System</span>
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              The DIY blueprints that show you how to build a device generating <strong className="text-white">up to 40 gallons of fresh water daily</strong> from thin air. 
+              Built using simple hardware store parts. Only <strong className="text-white">$67</strong> for complete digital plans + bonus guide.
+            </motion.p>
+          </motion.div>
 
-        {/* --- BRAND LOGO --- */}
-        <motion.div 
-           initial={{ opacity: 0, scale: 0.8 }}
-           animate={{ opacity: 1, scale: 1 }}
-           transition={{ duration: 0.5 }}
-           className="mb-10"
-        >
-          <BrandLogo />
-        </motion.div>
-
-        {/* --- HERO SECTION --- */}
-        <motion.div 
-          initial="hidden" 
-          whileInView="visible" 
-          viewport={{ once: true }}
-          variants={fadeInUp}
-          className="text-center mb-10"
-        >
-          <div className="inline-block bg-yellow-500/10 border border-yellow-500/50 rounded px-3 py-1 mb-4">
-            <span className="text-yellow-400 text-xs md:text-sm font-bold uppercase tracking-widest">
-              As Predicted in Scripture & Confirmed by NASA
-            </span>
-          </div>
-
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 text-white font-serif drop-shadow-2xl">
-            The <span className="text-red-500">"100-Year Megadrought"</span> Is Here.
-            <br className="hidden md:block" />
-            <span className="text-gray-300 text-2xl md:text-4xl block mt-2 font-medium">
-              Are You Prepared?
-            </span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed italic">
-            "While the government denies it, a humble carpenter from Arizona named <strong className="text-white">John Gilmore</strong> has discovered a forgotten 'Biblical' device that generates 50 gallons of water a day... out of thin air."
-          </p>
-        </motion.div>
-
-        {/* --- VSL VIDEO MOCKUP --- */}
-        <motion.div 
-          initial={{ scale: 0.95, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative mb-8"
-        >
-          <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-yellow-600 rounded-2xl blur opacity-30 animate-pulse"></div>
-          <div className="relative bg-slate-900 border border-slate-700 rounded-xl overflow-hidden shadow-2xl group">
-            <Link href={AFFILIATE_LINK} target="_blank">
-              <div className="aspect-video relative overflow-hidden">
-                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all z-20">
-                    <motion.div 
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ repeat: Infinity, duration: 2 }}
-                      className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(220,38,38,0.8)] border-4 border-white/20"
-                    >
-                      <svg className="w-8 h-8 text-white fill-current ml-1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    </motion.div>
-                    <p className="mt-4 text-white font-bold text-lg uppercase tracking-wider bg-black/70 px-6 py-2 rounded-full border border-gray-500">
-                      Click To Watch Video
-                    </p>
-                 </div>
-                 
-                 <Image 
-                   src="/product-mockup.png" 
-                   alt="Joseph's Well System" 
-                   width={800} 
-                   height={450} 
-                   className="object-cover w-full h-full opacity-60 group-hover:scale-105 transition-transform duration-700"
-                   priority
-                 />
+          {/* Video + Story Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+            {/* Video Mockup */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInLeft}>
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-500"></div>
+                <Link href={WATER_AFFILIATE_LINK} target="_blank" className="block relative">
+                  <div className="relative glass rounded-2xl overflow-hidden">
+                    <div className="aspect-video relative">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 group-hover:bg-black/10 transition-all z-20">
+                        <motion.div
+                          animate={{ scale: [1, 1.15, 1] }}
+                          transition={{ repeat: Infinity, duration: 2.5 }}
+                          className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(220,38,38,0.7)] border-2 border-white/20"
+                        >
+                          <svg className="w-8 h-8 text-white fill-current ml-1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </motion.div>
+                        <p className="mt-4 text-white font-bold text-sm uppercase tracking-widest bg-black/60 px-5 py-2 rounded-full border border-white/10">
+                          Watch Free Presentation
+                        </p>
+                      </div>
+                      <Image src="/product-mockup.png" alt="Joseph's Well System" width={800} height={450} className="object-cover w-full h-full opacity-50 group-hover:scale-105 transition-transform duration-700" priority />
+                    </div>
+                  </div>
+                </Link>
               </div>
-            </Link>
+            </motion.div>
+
+            {/* Story + Benefits */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInRight} className="flex flex-col justify-center">
+              <div className="glass rounded-2xl p-6 md:p-8 mb-6 border-l-4 border-yellow-500">
+                <h3 className="text-xl font-bold text-white mb-3">The Megadrought Is Here</h3>
+                <p className="text-gray-300 leading-relaxed text-sm mb-3">
+                  NASA confirms a &quot;100-Year Megadrought.&quot; Water rationing is expected in 2026. But <strong className="text-white">John Gilmore</strong> discovered a God-sent device born in the deserts of Israel — pulling fresh water from thin air.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Like Joseph in Egypt who prepared for famine, this system helps the faithful prepare for what&apos;s coming. No electricity needed. No plumbing. Just pure water independence.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: '💧', title: '40 Gal/Day', desc: 'Fresh water from thin air' },
+                  { icon: '🔋', title: '100% Off-Grid', desc: 'No electricity needed' },
+                  { icon: '🛠️', title: 'DIY Plans', desc: 'Complete blueprints for $67' },
+                  { icon: '🛡️', title: '60-Day Guarantee', desc: 'Full money-back via ClickBank' },
+                ].map((b, i) => (
+                  <motion.div key={i} whileHover={{ y: -3 }} className="glass rounded-xl p-4 hover:border-blue-500/30 transition-all">
+                    <span className="text-2xl">{b.icon}</span>
+                    <h4 className="text-white font-bold text-sm mt-2">{b.title}</h4>
+                    <p className="text-gray-500 text-xs mt-1">{b.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </div>
-        </motion.div>
 
-        {/* --- EMAIL OPT-IN BOX (NEW) --- */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="bg-slate-800 border border-slate-600 rounded-xl p-6 md:p-8 text-center shadow-xl mb-12 max-w-2xl mx-auto"
-        >
-           <h3 className="text-xl md:text-2xl font-bold text-white mb-2">
-             Where Should We Send Your Private Access Link?
-           </h3>
-           <p className="text-gray-400 text-sm mb-6">
-             Enter your best email to verify you are a real person and unlock the video instantly.
-           </p>
+          {/* Email Opt-In + Timer */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={scaleIn} className="max-w-2xl mx-auto">
+            <div className="relative">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-yellow-600 rounded-2xl blur opacity-20"></div>
+              <div className="relative glass rounded-2xl p-8 text-center">
+                {/* Timer */}
+                <div className="flex items-center justify-center gap-3 mb-5">
+                  <span className="text-red-400 text-xs font-bold uppercase tracking-wider animate-pulse">⏰ Offer Expires In:</span>
+                  <span className="font-mono text-2xl font-extrabold text-white bg-red-600/20 px-4 py-1 rounded-lg border border-red-500/30">
+                    {formatTime(timeLeft)}
+                  </span>
+                </div>
 
-           <form onSubmit={handleEmailSubmit} className="flex flex-col space-y-4">
-              <input 
-                type="email" 
-                required 
-                placeholder="Enter your email address..."
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-5 py-4 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-              />
-              <button 
-                type="submit"
-                className="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-lg py-4 rounded-lg shadow-lg shadow-red-600/30 uppercase tracking-widest transition-transform transform active:scale-95"
-              >
-                Unlock Video Now &raquo;
-              </button>
-           </form>
-           
-           <p className="mt-4 text-[10px] text-gray-500 flex justify-center items-center">
-             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z"/></svg>
-             We respect your privacy. No spam. Unsubscribe anytime.
-           </p>
-        </motion.div>
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-2">
+                  Get Instant Access to the Water System Guide
+                </h3>
+                <p className="text-gray-400 text-sm mb-6">
+                  Enter your email to verify you&apos;re a real person and unlock the private video presentation.
+                </p>
 
-        {/* --- THE STORY --- */}
-        <div className="max-w-2xl mx-auto space-y-8 mb-16">
-          <Section title="The Red Horse Is Riding">
-            <p className="text-gray-300 leading-relaxed mb-4">
-              If you're a man of faith, you know the signs. <strong className="text-white">War. Famine. Drought.</strong> 
-              The second seal has been opened.
-            </p>
-            <p className="text-gray-300 leading-relaxed">
-              NASA calls it a "Megadrought." Scripture calls it Judgment. 
-              But just like Joseph in Egypt, God has provided a way for the faithful to prepare.
-            </p>
-          </Section>
+                <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="email"
+                    required
+                    placeholder="Enter your best email..."
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="flex-1 px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                  />
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    type="submit"
+                    className="px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold rounded-xl shadow-lg shadow-red-600/25 btn-premium uppercase tracking-wider whitespace-nowrap"
+                  >
+                    Unlock Now »
+                  </motion.button>
+                </form>
 
-          {/* ... Baki ka content same hai ... */}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-            <BenefitCard icon="💧" title="50 Gallons Daily" desc="Generate endless fresh water on demand." />
-            <BenefitCard icon="🔋" title="100% Off-Grid" desc="Works without city electricity. Solar ready." />
-            <BenefitCard icon="🛠️" title="DIY Friendly" desc="Build it with basic hardware store parts." />
-            <BenefitCard icon="🛡️" title="Invisible" desc="No loud generators. Your neighbors won't know." />
-          </div>
+                <p className="mt-3 text-[10px] text-gray-600 flex items-center justify-center gap-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/></svg>
+                  100% Secure • 60-Day Money-Back via ClickBank • No spam.
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
+      </section>
 
-        {/* --- CTA SECTION --- */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-600 rounded-2xl p-8 text-center shadow-2xl relative overflow-hidden"
-        >
-          {/* ... CTA Content ... */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-red-600/10 blur-3xl rounded-full pointer-events-none"></div>
+      {/* ===== PRODUCT 2: QUANTUM COMPUTING SYSTEM ===== */}
+      <section id="quantum" className="relative py-20 md:py-28">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent"></div>
+        <div className="absolute top-40 left-0 w-[500px] h-[500px] bg-violet-600/8 rounded-full blur-[120px] pointer-events-none"></div>
 
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 relative z-10">
-            See How To Build "Joseph's Well" Today
-          </h2>
-          <p className="text-gray-400 mb-8 relative z-10">
-            Join 40,000+ Patriots. Secure your family's future before the taps run dry.
-          </p>
-          
-          <Link href={AFFILIATE_LINK} target="_blank">
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-red-600 hover:bg-red-500 text-white font-bold text-xl py-5 px-10 rounded-lg shadow-lg shadow-red-600/30 uppercase tracking-wider w-full md:w-auto relative z-10 transition-colors"
-            >
-              Watch The Free Presentation &raquo;
-            </motion.button>
-          </Link>
-          <p className="mt-4 text-xs text-gray-500">100% Secure • Money Back Guarantee via DigiStore24</p>
-        </motion.div>
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Section Header */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="text-center mb-14">
+            <motion.span variants={fadeInUp} className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-violet-400 mb-4">Product #2</motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-extrabold text-white mb-5">
+              Quantum Computing &amp; <span className="text-gradient-violet">The New Financial System</span>
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              An in-depth educational video series that reveals how quantum technology will transform global finance. 
+              Real-time transactions, unbreakable encryption, decentralized value distribution.
+            </motion.p>
+          </motion.div>
 
-        {/* --- FAQ SECTION --- */}
-        <div className="mt-16 border-t border-slate-800 pt-10">
-          <h3 className="text-center text-xl font-bold text-gray-400 mb-8">Frequently Asked Questions</h3>
-          <div className="space-y-4">
-            <FaqItem question="Does this really work in the desert?" answer="Yes. The technology was developed in Israel and tested in Arizona. It extracts moisture from humidity in the air." />
-            <FaqItem question="Is it legal to build?" answer="Absolutely. It is a DIY device for personal use on your own property." />
-            <FaqItem question="Do I need to be an engineer?" answer="No. The guide is designed for regular folks. If you can use a screwdriver, you can build this." />
+          {/* Product Image + Features */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+            {/* Product Image */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInLeft}>
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-cyan-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-500"></div>
+                <div className="relative glass rounded-2xl overflow-hidden animate-float">
+                  <Image 
+                    src="/quantum-product.png" 
+                    alt="Quantum Computing System" 
+                    width={600} 
+                    height={400} 
+                    className="w-full h-auto object-cover" 
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Features List */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="flex flex-col justify-center space-y-4">
+              {[
+                { icon: '🧬', title: 'Quantum Computing Fundamentals', desc: 'Learn qubits, superposition, and entanglement in plain language with stunning visual animations.' },
+                { icon: '💰', title: 'New Monetary Distribution System', desc: 'Discover how quantum tech is set to transform banking, transactions, and global finance infrastructure.' },
+                { icon: '🔐', title: 'Quantum Encryption & Security', desc: 'Understand unbreakable quantum encryption and how it secures the future financial ecosystem.' },
+                { icon: '📊', title: 'Real-Time Financial Processing', desc: 'See how quantum algorithms enable instant settlements and decentralized value distribution.' },
+                { icon: '🎓', title: 'Expert-Led Video Series', desc: 'Engaging visuals, clear storytelling, and expert insights make complex ideas accessible to everyone.' },
+              ].map((feature, i) => (
+                <motion.div
+                  key={i}
+                  variants={fadeInUp}
+                  className="glass rounded-xl p-5 flex items-start gap-4 hover:border-violet-500/30 transition-all duration-300 group cursor-default"
+                >
+                  <span className="text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">{feature.icon}</span>
+                  <div>
+                    <h4 className="text-white font-bold text-sm mb-1">{feature.title}</h4>
+                    <p className="text-gray-400 text-xs leading-relaxed">{feature.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
+
+          {/* Pricing Card */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={scaleIn} className="max-w-lg mx-auto">
+            <div className="relative">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 via-cyan-500 to-violet-600 rounded-2xl blur opacity-30 animate-gradient"></div>
+              <div className="relative glass-strong rounded-2xl p-8 text-center">
+                <div className="inline-block bg-violet-500/20 text-violet-300 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full border border-violet-500/30 mb-6">
+                  Complete Video Course
+                </div>
+
+                <div className="mb-6">
+                  <span className="text-gray-500 line-through text-lg">$4,999</span>
+                  <div className="text-5xl font-extrabold text-white mt-1">
+                    $2,499
+                  </div>
+                  <p className="text-gray-400 text-sm mt-2">One-time payment • Lifetime access</p>
+                </div>
+
+                <div className="space-y-3 text-left mb-8">
+                  {[
+                    'Full Quantum Computing Video Series',
+                    'Monetary Distribution System Breakdown',
+                    'Expert-Led Lessons with Animations',
+                    'Lifetime Access & Future Updates',
+                    '60-Day Money-Back Guarantee',
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 text-sm">
+                      <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                      </svg>
+                      <span className="text-gray-300">{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Link href={QUANTUM_AFFILIATE_LINK} target="_blank">
+                  <motion.button
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    whileTap={{ scale: 0.96 }}
+                    className="w-full py-4 bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-bold text-lg rounded-xl shadow-lg shadow-violet-500/25 btn-premium uppercase tracking-wider"
+                  >
+                    Enroll Now — Get Instant Access »
+                  </motion.button>
+                </Link>
+
+                <div className="flex items-center justify-center gap-4 mt-5 text-xs text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/></svg>
+                    Secure Checkout
+                  </span>
+                  <span>•</span>
+                  <span>DigiStore24 Protected</span>
+                  <span>•</span>
+                  <span>60-Day Refund</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
+      </section>
 
-      </main>
+      {/* ===== TESTIMONIALS ===== */}
+      <section id="reviews" className="relative py-20 md:py-28">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"></div>
 
-      {/* --- FOOTER --- */}
-      <footer className="bg-[#05080a] py-8 text-center border-t border-slate-800 mt-10 pb-24 md:pb-8">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="flex justify-center flex-wrap gap-4 text-xs text-gray-500 mb-6">
-            <Link href="/privacy-policy" className="hover:text-white underline">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-white underline">Terms of Service</Link>
-            <Link href="#" className="hover:text-white underline">Disclaimer</Link>
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="text-center mb-14">
+            <motion.span variants={fadeInUp} className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-cyan-400 mb-4">Social Proof</motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-extrabold text-white mb-5">
+              What Our <span className="text-gradient-blue">Members</span> Say
+            </motion.h2>
+          </motion.div>
+
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <TestimonialCard
+              name="Michael Rodriguez"
+              role="CTO, Technology Lab"
+              initials="MR"
+              text="This course transformed how we approach advanced computation. The clarity on quantum computing has significantly improved our data processing capabilities."
+            />
+            <TestimonialCard
+              name="Sarah Johnson"
+              role="Financial Controller"
+              initials="SJ"
+              text="The quantum computing video series is incredibly valuable. Real-world case studies helped me apply new approaches to complex data analysis right away."
+            />
+            <TestimonialCard
+              name="David Chen"
+              role="E-commerce Owner"
+              initials="DC"
+              text="The practical frameworks alone are worth the investment. I've saved dozens of hours on data processing, and our models are now far more precise."
+            />
+          </motion.div>
+
+          {/* Trust Badges */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="mt-14 flex flex-wrap items-center justify-center gap-6 md:gap-10">
+            {[
+              { icon: '🛡️', label: '60-Day Guarantee' },
+              { icon: '🔒', label: 'Secure Checkout' },
+              { icon: '⚡', label: 'Instant Access' },
+              { icon: '🌍', label: '40K+ Members' },
+            ].map((badge, i) => (
+              <div key={i} className="flex items-center gap-2 text-gray-400 text-sm">
+                <span className="text-xl">{badge.icon}</span>
+                <span>{badge.label}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section id="faq" className="relative py-20 md:py-28">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+        <div className="max-w-3xl mx-auto px-4">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="text-center mb-14">
+            <motion.span variants={fadeInUp} className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-gray-500 mb-4">Got Questions?</motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-extrabold text-white">
+              Frequently Asked Questions
+            </motion.h2>
+          </motion.div>
+
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="space-y-3">
+            <FaqItem question="Does the Joseph's Well water system really work in the desert?" answer="Yes. The technology was born in the deserts of Israel. It extracts moisture from humidity in the air, generating up to 40 gallons per day even in drought conditions." />
+            <FaqItem question="How much does Joseph's Well cost?" answer="The complete digital blueprints are just $67, including a bonus guide 'The Deadly Agents Hidden In Your Water'. A hard copy is also available for $67 + $9.95 S&H. 60-Day money-back guarantee via ClickBank." />
+            <FaqItem question="Do I need engineering skills?" answer="No. The DIY plans are designed for regular folks. If you can follow simple instructions, you can build this system." />
+            <FaqItem question="What is the Quantum Computing course about?" answer="It's an in-depth educational video series covering how quantum technology will transform global finance — from real-time transactions to quantum encryption and decentralized monetary systems." />
+            <FaqItem question="Who is the Quantum course for?" answer="Both curious minds and professionals. The series uses clear explanations, engaging visuals, and expert-led lessons to make complex ideas accessible." />
+            <FaqItem question="Is there a money-back guarantee?" answer="Yes! Joseph's Well has a 60-Day Money-Back Guarantee via ClickBank. The Quantum Computing course has a 60-Day Guarantee via DigiStore24. Full refund, no questions asked." />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===== FINAL CTA ===== */}
+      <section className="relative py-20 md:py-28">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/20 to-transparent pointer-events-none"></div>
+
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-extrabold text-white mb-5">
+              Ready to Take Control of Your <span className="text-gradient-violet">Future</span>?
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Don&apos;t wait until it&apos;s too late. Whether you need water independence or financial knowledge — the time to act is now.
+            </motion.p>
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href={WATER_AFFILIATE_LINK} target="_blank">
+                <motion.button
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-10 py-5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold text-lg rounded-xl shadow-xl shadow-blue-600/25 btn-premium uppercase tracking-wider animate-glow"
+                >
+                  💧 Get Water System Guide
+                </motion.button>
+              </Link>
+              <Link href={QUANTUM_AFFILIATE_LINK} target="_blank">
+                <motion.button
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-10 py-5 bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-bold text-lg rounded-xl shadow-xl shadow-violet-600/25 btn-premium uppercase tracking-wider animate-glow-violet"
+                >
+                  🧠 Enroll in Quantum Course
+                </motion.button>
+              </Link>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===== FOOTER ===== */}
+      <footer className="relative py-12 border-t border-white/5">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
+                <path d="M12 2L3 7V12C3 17.52 7.02 22.12 12 24C16.98 22.12 21 17.52 21 12V7L12 2Z" fill="#1e293b" stroke="#EAB308" strokeWidth="1.5"/>
+                <path d="M12 6C12 6 7 11 7 14C7 16.76 9.24 19 12 19C14.76 19 17 16.76 17 14C17 11 12 6 12 6Z" fill="#3B82F6"/>
+              </svg>
+              <span className="text-sm text-gray-500">© 2026 American Water Independence. All Rights Reserved.</span>
+            </div>
+
+            <div className="flex items-center gap-6 text-xs text-gray-600">
+              <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+              <Link href="#" className="hover:text-white transition-colors">Disclaimer</Link>
+              <LanguageSelector />
+            </div>
           </div>
-          <p className="text-[10px] text-gray-600">
-            This site is not a part of the Facebook website or Facebook Inc. Additionally, This site is NOT endorsed by Facebook in any way.
-          </p>
-          <p className="text-xs text-gray-500 mt-4">© 2026 American Water Independence. All Rights Reserved.</p>
+
+          <div className="mt-8 text-center">
+            <p className="text-[10px] text-gray-700 max-w-2xl mx-auto leading-relaxed">
+              This site is not a part of the Facebook website or Facebook Inc. Additionally, this site is NOT endorsed by Facebook in any way. 
+              FACEBOOK is a trademark of FACEBOOK, Inc. Individual results may vary. The products featured on this page are sold through DigiStore24 and third-party platforms.
+            </p>
+          </div>
         </div>
       </footer>
-    </div>
-  );
-}
 
-// --- HELPER COMPONENTS ---
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-slate-800/50 p-6 rounded-lg border-l-4 border-yellow-500"
-    >
-      <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-      {children}
-    </motion.div>
-  );
-}
-
-function BenefitCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
-  return (
-    <motion.div 
-      whileHover={{ y: -5 }}
-      className="bg-slate-800 p-4 rounded-lg border border-slate-700 flex items-start space-x-3"
-    >
-      <div className="text-2xl">{icon}</div>
-      <div>
-        <h4 className="font-bold text-white text-sm">{title}</h4>
-        <p className="text-xs text-gray-400 leading-tight mt-1">{desc}</p>
-      </div>
-    </motion.div>
-  );
-}
-
-function FaqItem({ question, answer }: { question: string; answer: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <div className="border border-slate-700 rounded-lg overflow-hidden">
-      <button 
-        onClick={() => setIsOpen(!isOpen)} 
-        className="w-full text-left p-4 bg-slate-800 text-gray-200 font-medium flex justify-between items-center hover:bg-slate-700 transition"
-      >
-        {question}
-        <span>{isOpen ? '−' : '+'}</span>
-      </button>
-      {isOpen && (
-        <div className="p-4 bg-slate-900 text-gray-400 text-sm leading-relaxed border-t border-slate-700">
-          {answer}
+      {/* ===== STICKY MOBILE CTA ===== */}
+      <div className="fixed bottom-0 left-0 right-0 md:hidden z-50">
+        <div className="glass-strong border-t border-white/10 px-4 py-3 flex gap-2">
+          <Link href={WATER_AFFILIATE_LINK} target="_blank" className="flex-1">
+            <button className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold text-xs rounded-lg btn-premium uppercase tracking-wider">
+              💧 Water System
+            </button>
+          </Link>
+          <Link href={QUANTUM_AFFILIATE_LINK} target="_blank" className="flex-1">
+            <button className="w-full py-3 bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-bold text-xs rounded-lg btn-premium uppercase tracking-wider">
+              🧠 Quantum Course
+            </button>
+          </Link>
         </div>
-      )}
+      </div>
     </div>
   );
 }

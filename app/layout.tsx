@@ -7,19 +7,12 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const robotoSlab = Roboto_Slab({ subsets: ["latin"], variable: "--font-roboto" });
 
 export const metadata: Metadata = {
-  title: "Joseph's Well Review: The Air Fountain System (2025 Survival Guide)",
-  description: "Does Joseph's Well really work? Discover how this DIY Air Fountain system generates 50 gallons of water daily. Perfect for off-grid survival in USA.",
-  keywords: ["Joseph's Well system", "Air Fountain system", "DIY water generator", "survival water solution", "off-grid water", "drought preparation USA"],
+  title: "Water Independence & Quantum Finance | Exclusive Offers 2026",
+  description: "Secure your future with Joseph's Well DIY water system (50 gal/day) and the Quantum Computing & New Financial System video course. Limited time offers.",
+  keywords: ["Joseph's Well system", "Air Fountain system", "DIY water generator", "quantum computing course", "quantum finance", "survival water", "off-grid water", "drought preparation"],
   openGraph: {
-    title: "Joseph's Well: Infinite Water Source Secret?",
-    description: "Don't rely on the grid. Create your own water source from thin air.",
-    images: [
-      {
-        url: 'https://your-domain.com/og-image.jpg',
-        width: 1200,
-        height: 630,
-      },
-    ],
+    title: "Water Independence & Quantum Finance — Secure Your Future",
+    description: "From generating water out of thin air to mastering quantum computing & the new financial system. Arm yourself with the tools that define tomorrow.",
     locale: 'en_US',
     type: 'website',
   },
