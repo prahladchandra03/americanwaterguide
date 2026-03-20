@@ -804,6 +804,201 @@ export default function Home() {
           </Link>
         </div>
       </div>
+
+      {/* ===== ENGAGEMENT TOOLS ===== */}
+      <ScrollProgressBar />
+      <SocialProofPopup />
+      <ExitIntentPopup />
     </div>
+  );
+}
+
+// ==================== ENGAGEMENT TOOLS ====================
+
+// --- 1. SCROLL PROGRESS BAR (top of page) ---
+function ScrollProgressBar() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(docHeight > 0 ? (scrollTop / docHeight) * 100 : 0);
+    };
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[60] h-1">
+      <motion.div
+        className="h-full bg-gradient-to-r from-blue-500 via-violet-500 to-cyan-500"
+        style={{ width: `${progress}%` }}
+        transition={{ duration: 0.1 }}
+      />
+    </div>
+  );
+}
+
+// --- 2. SOCIAL PROOF NOTIFICATION POPUPS ---
+function SocialProofPopup() {
+  const [show, setShow] = useState(false);
+  const [currentNotif, setCurrentNotif] = useState(0);
+
+  const notifications = [
+    { name: 'Robert M.', location: 'Texas', product: "Joseph's Well Plans", time: '2 min ago' },
+    { name: 'Sarah K.', location: 'Florida', product: 'Quantum Computing Course', time: '5 min ago' },
+    { name: 'James W.', location: 'Arizona', product: "Joseph's Well Plans", time: '8 min ago' },
+    { name: 'Maria G.', location: 'California', product: 'Quantum Computing Course', time: '12 min ago' },
+    { name: 'David L.', location: 'Ohio', product: "Joseph's Well Plans", time: '15 min ago' },
+    { name: 'Jennifer R.', location: 'New York', product: 'Quantum Computing Course', time: '18 min ago' },
+    { name: 'Michael T.', location: 'Georgia', product: "Joseph's Well Plans", time: '22 min ago' },
+    { name: 'Lisa C.', location: 'Pennsylvania', product: 'Quantum Computing Course', time: '25 min ago' },
+    { name: 'Chris B.', location: 'Nevada', product: "Joseph's Well Plans", time: '30 min ago' },
+    { name: 'Amanda S.', location: 'Michigan', product: 'Quantum Computing Course', time: '34 min ago' },
+  ];
+
+  useEffect(() => {
+    // First popup after 15 seconds
+    const initialDelay = setTimeout(() => {
+      setShow(true);
+      // Hide after 5 seconds
+      const hideTimer = setTimeout(() => setShow(false), 5000);
+      return () => clearTimeout(hideTimer);
+    }, 15000);
+
+    // Then cycle every 30-50 seconds
+    const interval = setInterval(() => {
+      setCurrentNotif(prev => (prev + 1) % notifications.length);
+      setShow(true);
+      setTimeout(() => setShow(false), 5000);
+    }, 30000 + Math.random() * 20000);
+
+    return () => {
+      clearTimeout(initialDelay);
+      clearInterval(interval);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const notif = notifications[currentNotif];
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ x: -400, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: -400, opacity: 0 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="fixed bottom-20 md:bottom-6 left-4 z-[55] max-w-xs"
+        >
+          <div className="glass-strong rounded-xl p-4 shadow-2xl border border-white/10 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white text-lg flex-shrink-0">
+              ✓
+            </div>
+            <div className="min-w-0">
+              <p className="text-white text-sm font-semibold truncate">
+                {notif.name} from {notif.location}
+              </p>
+              <p className="text-gray-400 text-xs mt-0.5">
+                Just purchased <span className="text-cyan-400">{notif.product}</span>
+              </p>
+              <p className="text-gray-600 text-[10px] mt-1">{notif.time}</p>
+            </div>
+            <button
+              onClick={() => setShow(false)}
+              className="text-gray-600 hover:text-white text-xs flex-shrink-0 ml-1"
+            >
+              ✕
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// --- 3. EXIT-INTENT POPUP ---
+function ExitIntentPopup() {
+  const [show, setShow] = useState(false);
+  const hasShown = useRef(false);
+
+  useEffect(() => {
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 5 && !hasShown.current) {
+        hasShown.current = true;
+        setShow(true);
+      }
+    };
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => document.removeEventListener('mouseleave', handleMouseLeave);
+  }, []);
+
+  if (!show) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShow(false)} />
+
+      {/* Popup */}
+      <motion.div
+        initial={{ scale: 0.8, y: 30 }}
+        animate={{ scale: 1, y: 0 }}
+        transition={{ type: 'spring', damping: 20 }}
+        className="relative glass-strong rounded-2xl p-8 max-w-md w-full text-center border border-red-500/20 shadow-2xl"
+      >
+        <button
+          onClick={() => setShow(false)}
+          className="absolute top-3 right-4 text-gray-500 hover:text-white text-xl"
+        >
+          ✕
+        </button>
+
+        <div className="text-5xl mb-4">⚠️</div>
+        <h3 className="text-2xl font-extrabold text-white mb-2">
+          Wait! Don&apos;t Leave Yet...
+        </h3>
+        <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+          You&apos;re about to miss exclusive access to life-changing resources. 
+          Over <strong className="text-white">40,000+ people</strong> have already taken action. 
+          Are you sure you want to leave empty-handed?
+        </p>
+
+        <div className="space-y-3">
+          <Link href={WATER_AFFILIATE_LINK} target="_blank" className="block">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl btn-premium uppercase tracking-wider text-sm"
+              onClick={() => setShow(false)}
+            >
+              💧 Yes! Show Me The Water System ($67)
+            </motion.button>
+          </Link>
+          <Link href={QUANTUM_AFFILIATE_LINK} target="_blank" className="block">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="w-full py-4 bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-bold rounded-xl btn-premium uppercase tracking-wider text-sm"
+              onClick={() => setShow(false)}
+            >
+              🧠 Show Me Quantum Finance Course
+            </motion.button>
+          </Link>
+          <button
+            onClick={() => setShow(false)}
+            className="text-gray-600 text-xs hover:text-gray-400 transition-colors mt-2"
+          >
+            No thanks, I&apos;ll pass on securing my future...
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
